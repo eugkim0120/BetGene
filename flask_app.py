@@ -34,24 +34,33 @@ if not os.path.exists(BET_OUTCOMES_FILE):
 
 
 ATTA_FILE = 'ATTA.xlsx'
-ATTAC_DOWNLOAD_URL = "https://auroraer-my.sharepoint.com/:x:/r/personal/alexander_wignall_auroraer_com/_layouts/15/Doc.aspx?sourcedoc=%7BFE944A1D-7B7E-44A8-B64A-6DBCFEEFD6A4%7D&file=ATTA.xlsx&action=default&mobileredirect=true"
+ATTA_DOWNLOAD_URL = "https://auroraer-my.sharepoint.com/:x:/r/personal/alexander_wignall_auroraer_com/_layouts/15/Doc.aspx?sourcedoc=%7BFE944A1D-7B7E-44A8-B64A-6DBCFEEFD6A4%7D&file=ATTA.xlsx&action=default&mobileredirect=true"
 
 def check_atta_file():
     """Check if ATTA.xlsx has been downloaded today, otherwise open SharePoint."""
     if os.path.exists(ATTA_FILE):
-        last_modified = datetime.fromtimestamp(os.path.getmtime(ATTA_FILE))
-        if last_modified.date() == datetime.today().date():
-            return  # Already downloaded today
 
-    # Open SharePoint URL in the default web browser
-    webbrowser.open(ATTAC_DOWNLOAD_URL)
-    
-    # Wait for ATTA.xlsx to appear
-    print("Waiting for ATTA.xlsx to be downloaded...")
-    while not os.path.exists(ATTA_FILE):
-        time.sleep(5)  # Check every 5 seconds
+        last_modified_time = datetime.fromtimestamp(os.path.getmtime(ATTA_FILE))
+        today_time = datetime.today()
+        current_day_12pm = pd.to_datetime(today_time.replace(hour=12, minute=00).strftime('%Y-%m-%d %H:%M:%S'))
 
-    print("ATTA.xlsx has been detected.")
+        if last_modified_time < current_day_12pm: # Before 12pm
+            webbrowser.open(ATTA_DOWNLOAD_URL)
+            while True:
+                print("No updated ATTA file detected")
+                time.sleep(5)
+                if os.path.exists(ATTA_FILE):
+                    new_last_modified_time = datetime.fromtimestamp(os.path.getmtime(ATTA_FILE))
+                    if last_modified_time < current_day_12pm:
+                        break
+                    else:
+                        continue
+                else:
+                    continue
+
+            print("ATTA.xlsx has been updated to latest version")
+        else:
+            print("ATTA.xlsx already updated to latest version")
 
 def load_bets():
     with open(USER_BETS_FILE, 'r') as f:
@@ -83,6 +92,7 @@ def calculate_score(username):
     refund_late_bets()
     user_bets = load_bets()
     outcomes = load_outcomes()
+    # print(outcomes)
     score = 100  # Start with a base score of 100
 
     bets_by_id = {}  # Group bets by Bet ID
@@ -107,6 +117,8 @@ def calculate_score(username):
             continue  # Skip matches without outcomes
 
         outcome = outcomes[bet_id]
+        print(outcomes)
+        print(data)
         total_pot = data["win"] + data["lose"]
         winning_pot = data[outcome]
 
@@ -163,15 +175,11 @@ def check_and_update_jan_bracket():
     if not os.path.exists(ATTA_FILE):
         print("ATTA.xlsx is missing. Cannot update Jan Bracket.")
         return
-
-    # Check if ATTA.xlsx was updated before 12 PM today
-    last_modified = datetime.fromtimestamp(os.path.getmtime(ATTA_FILE))
-    if last_modified.date() != datetime.today().date() or last_modified.time() > datetime.now().replace(hour=12, minute=0, second=0).time():
-        print("ATTA.xlsx was not updated before 12 PM today. Skipping update.")
-        return
-
+    
     # Backup the current jan_bracket.csv as previous_jan_bracket.csv
     if os.path.exists(JAN_BRACKET_CURRENT):
+        if os.path.exists(JAN_BRACKET_PREVIOUS):
+            os.remove(JAN_BRACKET_PREVIOUS)
         os.rename(JAN_BRACKET_CURRENT, JAN_BRACKET_PREVIOUS)
 
     # Parse the 'Jan Bracket' sheet and save as jan_bracket.csv

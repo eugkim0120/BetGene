@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place a Bet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #444;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            margin-bottom: 20px;
+        }
+        .result {
+            color: green;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Place a Bet</h1>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        {% if result %}
+        <div class="result">{{ result }}</div>
+        {% endif %}
+        <form method="POST">
+            <label for="game_name">Game:</label>
+            <select id="game_name" name="game_name" required>
+                <option value="" disabled selected>Select a game</option>
+                {% for game_name in game_names %}
+                <option value="{{ game_name }}">{{ game_name }}</option>
+                {% endfor %}
+            </select>
+            
+            <label for="amount">Bet Amount:</label>
+            <input type="number" id="amount" name="amount" required placeholder="Enter your bet amount">
+
+            <label for="prediction">Prediction:</label>
+            <select id="prediction" name="prediction" required>
+                <option value="" disabled selected>Select an outcome</option>
+                <option value="win">Win</option>
+                <option value="lose">Lose</option>
+            </select>
+
+            <button type="submit">Place Bet</button>
+        </form>
+        <a href="{{ url_for('home') }}">Back to Home</a>
+    </div>
+</body>
+</html>

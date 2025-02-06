@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        {% if username %}
+            <h1>Welcome, {{ username }}!</h1>
+            <a href="/logout" class="btn">Logout</a> | 
+            <a href="/bet" class="btn">Place Bet</a>
+        {% else %}
+            <a href="/login" class="btn">Login</a>
+        {% endif %}
+    </div>
+
+    <h2>Leaderboard</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Credits</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user, details in leaderboard %}
+                <tr>
+                    <td>{{ user }}</td>
+                    <td>{{ details }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,2 +1,2 @@
-python "C:\Users\EugeneKim\Downloads\mysite (1)\mysite\flask_app.py"
+python "C:\Users\eugki\OneDrive\Desktop\2024-25\Purposeful Projects\BetGene\flask_app.py"
 pause
